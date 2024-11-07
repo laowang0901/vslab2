@@ -14,7 +14,7 @@ lab_logging.setup(stream_level=logging.INFO)
 
 class TestEchoService(unittest.TestCase):
     """The test"""
-    _server = clientserver.Server()  # create single server in class variable
+    _server = clientserver.Server((phonebook))  # create single server in class variable
     _server_thread = threading.Thread(target=_server.serve)  # define thread for running server
 
     @classmethod

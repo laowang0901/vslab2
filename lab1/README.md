@@ -172,11 +172,11 @@ Nun sind Sie an der Reihe. Implementieren Sie den Telefonauskunftdienst, den wir
 
 ### 3.1 Übersicht
 
-Ihre Implementierung soll als 2-Tier Architektur realisiert sein (d.h. ein Prozess für den Auskunft Client mit Benutzerschnittstelle und ein Prozess für den Auskunft Server). Für den Kommunikationskanal verwenden Sie eine TCP-Verbindung über die Socket-Schnittstelle. Der Auskunft-Dienst soll als Anwendungsschicht über der Transportschicht implementiert werden. Die Nutzung des Auskunft-Dienstes soll über eine Auskunft-API Schnittstelle erfolgen (siehe Abbildung). Verwenden sie als Basis der Implementierung das Beispiel Skript `clientserver.py` und erweitern sie es entsprechend der Anforderungen des Auskunftsdienstes.
+Ihre Implementierung soll als **2-Tier Architektur** realisiert sein (d.h. ein Prozess für den Auskunft Client mit Benutzerschnittstelle und ein Prozess für den Auskunft Server). Für den Kommunikationskanal verwenden Sie eine TCP-Verbindung über die Socket-Schnittstelle. Der Auskunft-Dienst soll als Anwendungsschicht über der Transportschicht implementiert werden. Die Nutzung des Auskunft-Dienstes soll über eine Auskunft-API Schnittstelle erfolgen (siehe Abbildung). Verwenden sie als Basis der Implementierung das Beispiel Skript `clientserver.py` und erweitern sie es entsprechend der Anforderungen des Auskunftsdienstes.
 
 ![Schichtenarchitektur](img/auskunft_arch.png "Schichtenarchitektur") 
 
-Die Benutzerschnittstelle ist ein Jupyter Notebook, das das Skript `clientserver.py` importiert. Benutzer rufen den Dienst dort über die Auskunft-API als Python Funktionen auf und sehen dort auch die Ausgabe der Ergebnisse. Die Auskunft-API soll zwei Operationen bereitstellen:
+Die Benutzerschnittstelle ist ein Jupyter Notebook, das das Skript `clientserver.py` importiert. Benutzer rufen den Dienst dort über die Auskunft-API als **Python Funktionen** auf und sehen dort auch die Ausgabe der Ergebnisse. Die Auskunft-API soll zwei Operationen bereitstellen:
 
 1. `GET` bekommt als Parameter einen Namen und sucht diesen in der Telefon-Datenbank. Das Ergebnis wird über den Socket an den Client Prozess zurück gesendet.
 2. `GETALL` sendet alle Einträge der Telefon-Datenbank per Socket an den Client Prozess zurück.

@@ -24,7 +24,7 @@ class Server:
         self.sock.settimeout(3)  # time out in order not to block forever
         self._logger.info("Server bound to socket " + str(self.sock))
 
-    def serve(self):
+    def serve(self, phonebook):
         """ Serve echo """
         self.sock.listen(1)
         while self._serving:  # as long as _serving (checked after connections or socket timeouts)
@@ -35,12 +35,37 @@ class Server:
                     data = connection.recv(1024)  # receive data from client
                     if not data:
                         break  # stop if client stopped
-                    connection.send(data + "*".encode('ascii'))  # return sent data plus an "*"
+                    
+                    response =  self.phonebook_service(phonebook, data)
+                    connection.send(response.encode('ascii'))  # return response
                 connection.close()  # close the connection
             except socket.timeout:
                 pass  # ignore timeouts
         self.sock.close()
         self._logger.info("Server down.")
+        
+    def phonebook_service(self, phonebook, data):
+        request = data.decode('ascii')
+        operation = request.split()[0]
+
+        if operation == "GETALL":
+            self._logger.info("Receive GETALL request")
+            result = ""
+            for name, number in phonebook.items():
+                result = result + '{0} : {1}\n'.format(name, number)
+            return result
+            
+        elif operation == "GET":
+            name = request.split()[-1]
+            self._logger.info("Receive GET request")
+            if name in phonebook:
+                return str(phonebook[name])
+            else:
+                return "no matching data"
+        else :
+            self._logger.info("Receive invalid request")
+            return "Invalid request"
+    
 
 
 class Client:
