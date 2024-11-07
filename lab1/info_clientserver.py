@@ -23,7 +23,7 @@ class Server:
         self.sock.bind((const_cs.HOST, const_cs.PORT))
         self.sock.settimeout(3)  # time out in order not to block forever
         self._logger.info("Server bound to socket " + str(self.sock))
-        self.phonebook = {'alice': '1234', 'bob': '5678'}
+        self.phonebook = {'alice': '1234', 'bob': '5678', 'Üwel' : '8972'}
 
     def serve(self):
         """ Serve echo """
@@ -38,7 +38,7 @@ class Server:
                         break  # stop if client stopped
                     
                     response =  self.phonebook_service(data)
-                    connection.send(response.encode('ascii'))  # return response
+                    connection.send(response.encode("utf-8"))  # return response
                 connection.close()  # close the connection
             except socket.timeout:
                 pass  # ignore timeouts
@@ -46,7 +46,7 @@ class Server:
         self._logger.info("Server down.")
         
     def phonebook_service(self, data):
-        request = data.decode('ascii')
+        request = data.decode("utf-8")
         operation = request.strip().split()[0]
         self._logger.info("Get request")
 
@@ -81,9 +81,9 @@ class Client:
 
     def call(self, msg_in="Hello, world"):
         """ Call server """
-        self.sock.send(msg_in.encode('ascii'))  # send encoded string as data
+        self.sock.send(msg_in.encode("utf-8"))  # send encoded string as data
         data = self.sock.recv(1024)  # receive the response
-        msg_out = data.decode('ascii')
+        msg_out = data.decode("utf-8")
         print(msg_out)  # print the result
         self.sock.close()  # close the connection
         self.logger.info("Client down.")

@@ -39,7 +39,7 @@ class TestPhonebookService(unittest.TestCase):
     
     def test_srv_get2(self):
         """Test simple call"""
-        msg = self.client.call("GET paul")
+        msg = self.client.call("GET Üwel")
         self.assertEqual(msg, 'no matching data')
     
     def test_srv_get3(self):
@@ -55,7 +55,7 @@ class TestPhonebookService(unittest.TestCase):
     def test_srv_getAll(self):
         """Test simple call"""
         msg = self.client.call("GETALL")
-        self.assertEqual(msg, 'alice : 1234\nbob : 5678\n')
+        self.assertEqual(msg, 'alice : 1234\nbob : 5678\nÜwel : 8972\n')
 
     def tearDown(self):
         self.client.close()  # terminate client after each test
