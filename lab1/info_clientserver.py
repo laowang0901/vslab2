@@ -23,8 +23,9 @@ class Server:
         self.sock.bind((const_cs.HOST, const_cs.PORT))
         self.sock.settimeout(3)  # time out in order not to block forever
         self._logger.info("Server bound to socket " + str(self.sock))
+        self.phonebook = {'alice': '1234', 'bob': '5678'}
 
-    def serve(self, phonebook):
+    def serve(self):
         """ Serve echo """
         self.sock.listen(1)
         while self._serving:  # as long as _serving (checked after connections or socket timeouts)
@@ -36,7 +37,7 @@ class Server:
                     if not data:
                         break  # stop if client stopped
                     
-                    response =  self.phonebook_service(phonebook, data)
+                    response =  self.phonebook_service(data)
                     connection.send(response.encode('ascii'))  # return response
                 connection.close()  # close the connection
             except socket.timeout:
@@ -44,22 +45,23 @@ class Server:
         self.sock.close()
         self._logger.info("Server down.")
         
-    def phonebook_service(self, phonebook, data):
+    def phonebook_service(self, data):
         request = data.decode('ascii')
         operation = request.split()[0]
+        self._logger.info("Get request")
 
         if operation == "GETALL":
             self._logger.info("Receive GETALL request")
             result = ""
-            for name, number in phonebook.items():
+            for name, number in self.phonebook.items():
                 result = result + '{0} : {1}\n'.format(name, number)
             return result
             
         elif operation == "GET":
             name = request.split()[-1]
             self._logger.info("Receive GET request")
-            if name in phonebook:
-                return str(phonebook[name])
+            if name in self.phonebook:
+                return str(self.phonebook[name])
             else:
                 return "no matching data"
         else :

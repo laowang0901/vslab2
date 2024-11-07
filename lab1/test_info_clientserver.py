@@ -14,9 +14,9 @@ lab_logging.setup(stream_level=logging.INFO)
 
 class TestPhonebookService(unittest.TestCase):
     """The test"""
-    phonebook = {'alice': '1234', 'bob': '5678'}
+
     _server = info_clientserver.Server()  # create single server in class variable
-    _server_thread = threading.Thread(target=_server.serve(phonebook))  # define thread for running server
+    _server_thread = threading.Thread(target=_server.serve)  # define thread for running server
 
 
     @classmethod
