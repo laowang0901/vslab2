@@ -47,21 +47,21 @@ class Server:
         
     def phonebook_service(self, data):
         request = data.decode('ascii')
-        operation = request.split()[0]
+        operation = request.strip().split()[0]
         self._logger.info("Get request")
 
-        if operation == "GETALL":
+        if operation.upper() == "GETALL":
             self._logger.info("Receive GETALL request")
             result = ""
             for name, number in self.phonebook.items():
                 result = result + '{0} : {1}\n'.format(name, number)
             return result
             
-        elif operation == "GET":
-            name = request.split()[-1]
+        elif operation.upper() == "GET":
+            name = request.split()[-1].lower()
             self._logger.info("Receive GET request")
             if name in self.phonebook:
-                return str(self.phonebook[name])
+                return str(name + " : " + self.phonebook[name].lower())
             else:
                 return "no matching data"
         else :

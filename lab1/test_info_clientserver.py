@@ -30,7 +30,12 @@ class TestPhonebookService(unittest.TestCase):
     def test_srv_get(self): 
         """Test simple call"""
         msg = self.client.call("GET alice")
-        self.assertEqual(msg, '1234')
+        self.assertEqual(msg, 'alice : 1234')
+    
+    def test_srv_get1(self): 
+        """Test simple call"""
+        msg = self.client.call("GET alice")
+        self.assertEqual(msg, 'alice : 1234')
     
     def test_srv_get2(self):
         """Test simple call"""
