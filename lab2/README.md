@@ -194,7 +194,7 @@ Erweitern Sie nun die Client- und Server-Klassen so, dass diese den oben beschri
 
 Um nicht beim Warten auf die Server-Antworten den Client-Prozess zu blockieren, gibt es verschiedene Möglichkeiten. Wir haben in der Vorlesung Threads behandelt, um solche Blockaden zu vermeiden.
 
-Sie sollen in dieser Aufgabe einen **Thread** verwenden, um auf die Server-Antworten zu warten. Ferner soll die Verarbeitung des Ergebnisses ebenfalls in diesem Thread durch Aufruf einer **Callback-Funktion** erfolgen. Die Callback-Funktion soll der Anwender als Parameter beim RPC-Aufruf mitliefern.
+Sie sollen in dieser Aufgabe einen **Thread** verwenden, um auf die Server-Antworten zu warten. Ferner soll die Verarbeitung des Ergebnisses ebenfalls in diesem Thread durch Aufruf einer **Callback-Funktion** erfolgen. Die **Callback-Funktion soll der Anwender als Parameter beim RPC-Aufruf mitliefern.**
 
 #### 3.1.1. Das Python `threading` Modul
 
@@ -216,9 +216,9 @@ Die ``threading``-API ist hier dokumentiert:
 - Erweitern Sie Client- und Server-Klassen des RPC-Beispiels in `rpc/rpc.py` so, dass sie den Ablauf eines asynchronen RPC realisieren.
 - Passen Sie auch die dazugehörigen Client- und Server-Skripte des RPC-Beispiels `rpc/runcl.py` und `rpc/runsrv.py` entsprechend an.
 - Die schon vorhandenen Append-Funktion kann beibehalten werden, nur eben asynchron.
-- Pausieren Sie den Server nach der Bestätigung des Requests für 10 Sekunden, um eine lange Ausführungszeit zu simulieren.
-- Verwenden Sie im Client einen Thread zum Warten und Reagieren auf Server-Antworten.
-- Verwenden Sie zur Verarbeitung des Ergebnisses eine Callback-Funktion.
+- Pausieren Sie den Server nach der Bestätigung des Requests für **10 Sekunden**, um eine lange Ausführungszeit zu simulieren.
+- Verwenden Sie im Client einen **Thread** zum Warten und Reagieren auf Server-Antworten.
+- Verwenden Sie zur Verarbeitung des Ergebnisses eine **Callback-Funktion**.
 - Machen Sie im Client einige Ausgaben auf der Konsole, um zu zeigen, dass er während des Wartens aktiv ist.
 - Am Ende soll der Client das Ergebnis des RPC auf der Konsole ausgeben.
 
