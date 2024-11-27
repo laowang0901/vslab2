@@ -28,6 +28,10 @@ class Client(threading.Thread):
 
     def stop(self):
         self.chan.leave('client')
+        
+    def wait_for_response(self, callback):
+        msgrcv = self.chan.receive_from(self.server)  # wait for response
+        callback(msgrcv[1].value)
        
     
     def append(self, data, db_list, callback):
@@ -36,17 +40,16 @@ class Client(threading.Thread):
         self.chan.send_to(self.server, msglst)  # send msg to server
         print("Request sent to the Server")
         msgrcv = self.chan.receive_from(self.server)  # wait for response
-        callback(msgrcv[1].value)
-        #if constRPC.OK == msgrcv[1].value:
-        #    print("ACK received.")
-        #    msgrcv = self.chan.receive_from(self.server)
-        #    callback(msgrcv[1].value)
-    
-    def callback_print(self, result):
-        print("Recieve result from server: {}".format(result))
-
-
         
+        if constRPC.OK == msgrcv[1]:
+            print("Server get request")
+            background = threading.Thread(target=self.wait_for_response, args=(callback,))
+            background.start()
+    
+
+
+
+
 
 
 class Server:
@@ -67,13 +70,15 @@ class Server:
             if msgreq is not None:
                 client = msgreq[0]  # see who is the caller
                 print("{} sent request".format(client))
-                #self.chan.send_to({client}, constRPC.OK)  # sending Acknoledgement back to cleint
+                self.chan.send_to({client}, constRPC.OK)  # sending Acknoledgement back to cleint
                 print("ACK sent to {}".format(client))
                 msgrpc = msgreq[1]  # fetch call & parameters
+                
                 if constRPC.APPEND == msgrpc[0]:  # check what is being requested
                     time.sleep(10)  # waiting for 10 second
                     result = self.append(msgrpc[1], msgrpc[2])  # do local call
                     self.chan.send_to({client}, result)  # return response
+                    print("Response sent to {}".format(client))
 
                 else:
                     pass  # unsupported request, simply ignore

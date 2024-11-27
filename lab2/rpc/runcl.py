@@ -1,9 +1,12 @@
 import rpc
 import logging
-import threading
 import time
 
 from context import lab_logging
+    
+def msg_print(result):
+    print("Recieve result from server: {}".format(result))
+
 
 
 lab_logging.setup(stream_level=logging.INFO)
@@ -13,11 +16,9 @@ cl.run()
 
 base_list = rpc.DBList({'foo'})
 
-background = threading.Thread(target=cl.append, args=('bar', base_list, cl.callback_print))
-background.start()
+cl.append('bar', base_list, msg_print)
 for i in range(1, 10):
     print("Client is doing someting else" + "." * i)
     time.sleep(1.5)
-background.join()  # Wait for the background task to finish
 
 cl.stop()
