@@ -108,6 +108,8 @@ Experiment nachverfolgen:
 
 **Aufgabe Lab3.1:** Erklären Sie das Verhalten der Systeme in den beiden
 Experimenten.
+**Antwort 3.1**
+
 
 ### 2.2. Publish-Subscribe
 
@@ -134,6 +136,8 @@ cd ~/git/vs2lab/lab3/zmq2 # angenommen hier liegt das vs2lab Repo
 
 **Aufgabe Lab3.2:** Erklären Sie das Verhalten der Systeme in den beiden
 Experimenten.
+**Antwort 3.1**
+
 
 ### 2.3. Parallel Pipeline
 
@@ -173,6 +177,9 @@ Gehen sie nun wie folgt vor:
 
 **Aufgabe Lab3.3:** Erklären Sie das Verhalten der Systeme in den beiden
 Experimenten.
+**Antwort 3.3**
+Experiment 1: 1 worker recieve workloads from sources 1 and 2
+Experiment 2: 2 workers recieve workloads evenly from source 1 
 
 ## 3 Aufgabe
 
