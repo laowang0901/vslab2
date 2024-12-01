@@ -27,9 +27,12 @@ time.sleep(1)
 
 print("Reducer {} started".format(me))
 count = 0
+word_list = []
 
 while True:
     count += 1
     work = pickle.loads(receiver.recv())  # receive work from a source
-    print("{} received {}. workload {} from {}".format(me,count, work[1], work[0]))
-    time.sleep(work[1] * 0.01)  # pretend to work
+    word = work[1].lower()
+    word_list.append(word)
+    print("{} received {}. workload: {} from {}. Occurrence: {}"
+          .format(me, count, word, work[0], word_list.count(word)))

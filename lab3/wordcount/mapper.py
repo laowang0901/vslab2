@@ -11,6 +11,11 @@ import zmq
 
 import constPipe
 
+import nltk
+
+nltk.download('punkt_tab')
+
+
 me = str(sys.argv[1])
 context = zmq.Context()
 
@@ -33,10 +38,12 @@ count = 0
 
 while True:
     count += 1
-    work = pickle.loads(receiver.recv())  # receive work from a source
-    print("{} received {}. workload {}".format(me,count, work))
-    time.sleep(work * 0.01)  # pretend to work
+    sentence = pickle.loads(receiver.recv())  # receive work from a source
+    print("{} received {}. workload: {}".format(me, count, sentence))
+    words = nltk.word_tokenize(sentence)
 
     # Send results to sink
-    sender.send(pickle.dumps((me, work)))
-    print("{} send {}. workload {}".format(me,count, work))
+    for word in words:
+        sender.send(pickle.dumps((me, word)))
+        print("{} send workload {}".format(me, word))
+        time.sleep(0.1)
