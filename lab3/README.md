@@ -212,9 +212,9 @@ Sie sollen die oben beschriebenen Prozesse als Python Skripte implementieren und
 die Kommunikation zwischen diesen mit dem 0MQ Parallel Pipeline Muster
 realisieren. Verwenden Sie:
 
-- einen Splitter
-- drei Mapper
-- zwei Reducer
+- einen Splitter (src)
+- drei Mapper (worker)
+- zwei Reducer (worker)
 
 Der Splitter kann entweder eine Datei lesen oder die Sätze zufällig generieren.
 Der Reducer soll bei jeder Aktualisierung den aktuellen Zähler des neuen Wortes

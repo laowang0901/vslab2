@@ -1,32 +1,29 @@
-import pickle
-import sys
-import time
+# Task ventilator
+# Binds PUSH socket to tcp://localhost:50011
+# Sends batch of tasks to workers via that socket
+#
 
+import pickle
 import zmq
+import random
+import time
 
 import constPipe
 
-me = str(sys.argv[1])
-
-src = constPipe.SRC1
-prt = constPipe.PORT1
-
 context = zmq.Context()
-push_socket = context.socket(zmq.PUSH)  # create a push socket
 
-address = "tcp://" + src + ":" + prt  # how and where to connect
-push_socket.bind(address)  # bind socket to address
+# Socket to send messages on
+sender = context.socket(zmq.PUSH)
+address = "tcp://" + constPipe.SRC1 + ":" + constPipe.PORT1
+sender.bind(address)
+
+print("Press Enter when the workers are ready: ")
+_ = input()
+print("Sending tasks to workers...")
 
 time.sleep(1) # wait to allow all clients to connect
 
-f = open("../testText.txt", "r")
-
-print(f.read())
-##TODO 
-## split sentence into words with multiple separator 
-
-
-##for i in range(100):  # generate 100 workloads
-##    workload = random.randint(1, 100)  # compute workload
-##    push_socket.send(pickle.dumps((me, workload)))  # send workload to worker
-    
+for i in range(100):  # generate 100 workloads
+    workload = random.randint(1, 100)  # compute workload
+    sender.send(pickle.dumps((workload)))  # send workload to worker
+    print("Sending {}. tasks".format(i))
