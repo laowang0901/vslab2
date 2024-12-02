@@ -9,6 +9,7 @@ import time
 import zmq
 
 import constPipe
+from collections import Counter
 
 
 me = str(sys.argv[1])
@@ -26,13 +27,17 @@ receiver.bind(address)
 time.sleep(1) 
 
 print("Reducer {} started".format(me))
-count = 0
-word_list = []
+
+counter = {}
 
 while True:
-    count += 1
     work = pickle.loads(receiver.recv())  # receive work from a source
-    word = work[1].lower()
-    word_list.append(word)
-    print("{} received {}. workload: {} from {}. Occurrence: {}"
-          .format(me, count, word, work[0], word_list.count(word)))
+    
+    if work[1] in counter:
+        count = counter.get(work[1])
+        counter.update({work[1]: count+1})
+    else:
+        counter[work[1]] = 1
+    print("{} received workload from {}:  ({}: {})"
+          .format(me, work[0], work[1], counter[work[1]]))
+

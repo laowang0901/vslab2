@@ -19,7 +19,7 @@ address = "tcp://" + constPipe.SRC1 + ":" + constPipe.PORT1
 sender.bind(address)
 
 # Use NLTK(Natural Language Toolkit) to split text into sentences(pipenv install nltk)
-f = open("../testText.txt", "r") 
+f = open("../testText2.txt", "r") 
 text = f.read()
 nltk.download('punkt_tab')
 sentences = nltk.sent_tokenize(text)
