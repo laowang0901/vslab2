@@ -32,12 +32,19 @@ counter = {}
 
 while True:
     work = pickle.loads(receiver.recv())  # receive work from a source
-    
-    if work[1] in counter:
-        count = counter.get(work[1])
-        counter.update({work[1]: count+1})
+    if "STOP" not in work:
+        if work[1] in counter:
+            count = counter.get(work[1])
+            counter.update({work[1]: count+1})
+        else:
+            counter[work[1]] = 1
+        print("{} received workload from {}:  ({}: {})"
+                .format(me, work[0], work[1], counter[work[1]]))
+
     else:
-        counter[work[1]] = 1
-    print("{} received workload from {}:  ({}: {})"
-          .format(me, work[0], work[1], counter[work[1]]))
+        break
+
+print("All word collected:")
+for key, value in counter.items():
+    print("({}: {})".format(key, value))
 

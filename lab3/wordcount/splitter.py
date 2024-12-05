@@ -36,3 +36,5 @@ for sentence in sentences:
     count += 1
     sender.send(pickle.dumps((sentence)))  # send workload to worker
     print("{}. sentence: {}".format(count, sentence))
+
+sender.send(pickle.dumps(("STOP")))

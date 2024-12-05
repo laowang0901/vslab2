@@ -50,16 +50,22 @@ count = 0
 while True:
     count += 1
     sentence = pickle.loads(receiver.recv())  # receive work from a source
-    print("{} received {}. workload: {}".format(me, count, sentence))
-    sentence = remove_punctuation(sentence)
-    words = nltk.word_tokenize(sentence)
+    if "STOP" not in sentence:
+        print("{} received {}. workload: {}".format(me, count, sentence))
+        sentence = remove_punctuation(sentence)
+        words = nltk.word_tokenize(sentence)
 
-    # Send results to sink
-    for word in words:
-        word = word.lower()
-        if re.match(r'[a-o]', word):
-            sender1.send(pickle.dumps((me, word)))
-        else:
-            sender2.send(pickle.dumps((me, word)))
-        print("{} send workload {}".format(me, word))
-        time.sleep(0.1)
+        # Send results to sink
+        for word in words:
+            word = word.lower()
+            if re.match(r'[a-o]', word):
+                sender1.send(pickle.dumps((me, word)))
+            else:
+                sender2.send(pickle.dumps((me, word)))
+            print("{} send workload {}".format(me, word))
+            time.sleep(0.1)
+            
+    else:
+        sender1.send(pickle.dumps((me, "STOP")))
+        sender2.send(pickle.dumps((me, "STOP")))
+        
