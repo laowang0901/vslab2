@@ -114,6 +114,7 @@ class ChordNode:
             return self.finger_table[-1]  # key in [FT[-1],FT[0]]
         assert False # we cannot be here
 
+
     def enter(self):
         self.channel.bind(str(self.node_id))  # bind current pid
         self.add_node(self.node_id)
@@ -147,17 +148,27 @@ class ChordNode:
                 break
 
             if request[0] == constChord.LOOKUP_REQ:  # A lookup request
-                self.logger.info("Node {:04n} received LOOKUP {:04n} from {:04n}."
+                self.logger.info("Node {:04n} received LOOKUP request for {:04n} from {:04n}."
                                  .format(self.node_id, int(request[1]), int(sender)))
 
+                ##TODO Aufgabe1
                 # look up and return local successor 
                 next_id: int = self.local_successor_node(request[1])
-                self.channel.send_to([sender], (constChord.LOOKUP_REP, next_id))
-
+                if (next_id != self.node_id):
+                    self.logger.info("Node {:04n} sent LOOKUP request for {:04n} to {:04n}."
+                                 .format(self.node_id, int(request[1]), int(next_id)))
+                    self.channel.send_to([str(next_id)], (constChord.LOOKUP_REQ, int(request[1])))
+                else:
+                    self.logger.info("Node {:04n} sent LOOKUP result {:04n} to client."
+                                 .format(self.node_id, int(next_id)))
+                    self.channel.send_to({i.decode() for i in list(self.channel.channel.smembers('client'))}, 
+                                         (constChord.LOOKUP_REP, int(next_id)))
+            
+                
                 # Finally do a sanity check
                 if not self.channel.exists(next_id):  # probe for existence
                     self.delete_node(next_id)  # purge disappeared node
-
+            
             elif request[0] == constChord.JOIN:
                 # Join request (the node was already registered above)
                 self.logger.debug("Node {:04n} received JOIN from {:04n}."
@@ -165,7 +176,7 @@ class ChordNode:
                 # we don't care for storage re-location in this example
                 continue
             elif request[0] == constChord.LEAVE:  # Leave request
-                self.logger.info("Node {:04n} received LEAVE from {:04n}."
+                self.logger.info("Node {:04n} received LEAVE from node {:04n}."
                                  .format(self.node_id, int(sender)))
                 self.delete_node(sender)  # update known nodes
 

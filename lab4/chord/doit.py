@@ -15,6 +15,8 @@ import chordnode as chord_node
 import constChord
 from context import lab_channel, lab_logging
 
+import secrets
+
 lab_logging.setup(stream_level=logging.INFO)
 
 
@@ -29,7 +31,17 @@ class DummyChordClient:
         self.channel.bind(self.node_id)
 
     def run(self):
-        print("Implement me pls...")
+        key = secrets.choice(range(0, 63))
+        node = secrets.choice(list(self.channel.channel.smembers('node')))
+        self.channel.send_to([node.decode()], (constChord.LOOKUP_REQ, key))
+        print("Client Send LOOKUP request of key:{} to node:{}.".format(key, node.decode()))
+        
+        
+        message = self.channel.receive_from_any()
+        sender: str = message[0]  # Identify the sender
+        response = message[1][1]  # And the actual request
+        print("Client receive LOOKUP response of succ({}):{} from node:{}.".format(key, response, sender))
+        
         self.channel.send_to(  # a final multicast
             {i.decode() for i in list(self.channel.channel.smembers('node'))},
             constChord.STOP)
