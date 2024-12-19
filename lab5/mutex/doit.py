@@ -66,7 +66,7 @@ if __name__ == "__main__":  # if script is started from command line
             args=(m, Process, bar1, bar2))
         children.append(peer_proc)
         peer_proc.start()
-
+    
     # terminate a random process after some time (10 seconds)
     time.sleep(10)
     proc_id = random.randint(0, len(children) - 1)

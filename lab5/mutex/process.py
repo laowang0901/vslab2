@@ -2,7 +2,7 @@ import logging
 import random
 import time
 
-from constMutex import ENTER, RELEASE, ALLOW
+from constMutex import ENTER, RELEASE, ALLOW, ALERT
 
 
 class Process:
@@ -114,10 +114,32 @@ class Process:
                 # assure release requester indeed has access (his ENTER is first in queue)
                 assert self.queue[0][1] == msg[1] and self.queue[0][2] == ENTER, 'State error: inconsistent remote RELEASE'
                 del (self.queue[0])  # Just remove first message
+            elif msg[2] == ALERT:
+                self.logger.info("{} ALERT received. {} is crushed".format(self.__mapid(), msg[3]))
+                            
 
             self.__cleanup_queue()  # Finally sort and cleanup the queue
         else:        
             self.logger.warning("{} timed out on RECEIVE.".format(self.__mapid()))
+            self.__timeout_handle()
+            
+    def __timeout_handle(self):
+        #check which process not answered
+        #if found crushed process
+        #send ALERT to other process
+        processes_with_later_message = set([req[1] for req in self.queue[1:]])
+        process_not_answered = set(self.all_processes).difference(processes_with_later_message)
+        process_alive = set(self.all_processes).difference(process_not_answered)
+        
+        # construct new queue from later ENTER requests (removing all ALLOWS)
+        tmp = [r for r in self.queue[1:] if r[2] == ENTER]
+        self.queue = tmp  # and copy to new queue
+        self.clock = self.clock + 1  # Increment clock value
+        msg = (self.clock, self.process_id, ALERT, process_not_answered)
+        # Multicast release notification
+        
+        self.channel.send_to(self.other_processes, msg)
+                
 
     def init(self):
         self.channel.bind(self.process_id)
