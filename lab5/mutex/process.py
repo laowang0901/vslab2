@@ -2,7 +2,7 @@ import logging
 import random
 import time
 
-from constMutex import ENTER, RELEASE, ALLOW, ACTIVE
+from constMutex import ENTER, RELEASE, ALLOW, ACTIVE, ALERT
 
 
 class Process:
@@ -46,6 +46,7 @@ class Process:
         self.peer_name = 'unassigned'  # The original peer name
         self.peer_type = 'unassigned'  # A flag indicating behavior pattern
         self.logger = logging.getLogger("vs2lab.lab5.mutex.process.Process")
+        self.crashed_proc = ""
 
     def __mapid(self, id='-1'):
         # format channel member address
@@ -95,6 +96,7 @@ class Process:
         all_have_answered = len(self.other_processes) == len(
             processes_with_later_message)
         return first_in_queue and all_have_answered
+    
 
     def __receive(self):
         # Pick up any message
@@ -109,6 +111,7 @@ class Process:
                 self.__mapid(),
                 "ENTER" if msg[2] == ENTER
                 else "ALLOW" if msg[2] == ALLOW
+                else "ALERT" if msg[2] == ALERT
                 else "RELEASE", self.__mapid(msg[1])))
 
             if msg[2] == ENTER:
@@ -122,8 +125,10 @@ class Process:
                 assert self.queue[0][1] == msg[1] and self.queue[0][2] == ENTER, 'State error: inconsistent remote RELEASE'
                 del (self.queue[0])  # Just remove first message
             elif msg[2] == ALERT:
-                self.logger.info("{} ALERT received. {} is crushed".format(self.__mapid(), msg[3]))
-
+                self.crashed_proc = msg[1]
+                self.__crashed_proc_handle()
+                
+                
             self.__cleanup_queue()  # Finally sort and cleanup the queue
         else:
             self.logger.info("{} timed out on RECEIVE. Local queue: {}".
@@ -132,26 +137,41 @@ class Process:
                                         'Clock '+str(msg[0]),
                                         self.__mapid(msg[1]),
                                         msg[2]), self.queue))))
-            self.__timeout_handle()
+            if self.crashed_proc == "":
+                self.__crashed_proc_check()
+            else:
+                self.__crashed_proc_handle()
+    
 
-                            
+    def __crashed_proc_handle(self):
+
+        self.other_processes.remove(self.crashed_proc)
+        self.logger.info("{} Removed crushed process {}.".format(self.__mapid(), self.crashed_proc))
+        tmp = [r for r in self.queue[1:] if r[1] != self.crashed_proc] # take req from crushed proc out of queue
+        self.queue = tmp
+        
+        self.crashed_proc = ""
             
-    def __timeout_handle(self):
-        #check which process not answered
-        #if found crushed process
-        #send ALERT to other process
-        processes_with_later_message = set([req[1] for req in self.queue[1:]])
-        process_not_answered = set(self.all_processes).difference(processes_with_later_message)
-        process_alive = set(self.all_processes).difference(process_not_answered)
-        
-        # construct new queue from later ENTER requests (removing all ALLOWS)
-        tmp = [r for r in self.queue[1:] if r[2] == ENTER]
-        self.queue = tmp  # and copy to new queue
-        self.clock = self.clock + 1  # Increment clock value
-        msg = (self.clock, self.process_id, ALERT, process_not_answered)
-        # Multicast release notification
-        
-        self.channel.send_to(self.other_processes, msg)
+    def __crashed_proc_check(self):
+        # cases of time out:
+        # 1) waiting allowed to enter(first in queue)
+        # 2) waiting crushed proc to enter (ENTER)
+        if self.queue[0][1] == self.process_id:
+            proc_sent_allow = set([r[1] for r in self.queue[1:] if  r[2]== ALLOW])
+            crashed = self.other_processes.copy()
+            for proc in proc_sent_allow:
+                crashed.remove(proc)
+            self.crashed_proc = crashed[0]
+                      
+            #send ALERT to other process
+            self.clock = self.clock + 1  # Increment clock value
+            msg = (self.clock, self.crashed_proc, ALERT)
+            self.channel.send_to(self.other_processes, msg)
+        else:
+            self.crashed_proc = self.queue[0][1]
+            self.logger.info("{}: Process {} is possibly crashed.".format(self.__mapid(), self.crashed_proc))
+            
+
 
     def init(self, peer_name, peer_type):
         self.channel.bind(self.process_id)
