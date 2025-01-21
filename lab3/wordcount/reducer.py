@@ -45,6 +45,6 @@ while True:
         break
 
 print("All word collected:")
-for key, value in counter.items():
-    print("({}: {})".format(key, value))
+for word, count in counter.items():
+    print("({}: {})".format(word, count))
 

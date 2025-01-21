@@ -16,6 +16,7 @@ import constChord
 from context import lab_channel, lab_logging
 
 import secrets
+import random
 
 lab_logging.setup(stream_level=logging.INFO)
 
@@ -27,20 +28,22 @@ class DummyChordClient:
         self.channel = channel
         self.node_id = channel.join('client')
 
+
     def enter(self):
         self.channel.bind(self.node_id)
 
     def run(self):
-        key = secrets.choice(range(0, 63))
+
+        key = random.randint(0, self.channel.MAXPROC - 1)
         node = secrets.choice(list(self.channel.channel.smembers('node')))
         self.channel.send_to([node.decode()], (constChord.LOOKUP_REQ, key))
         print("Client Send LOOKUP request of key:{} to node:{}.".format(key, node.decode()))
         
         
         message = self.channel.receive_from_any()
-        sender: str = message[0]  # Identify the sender
-        response = message[1][1]  # And the actual request
-        print("Client receive LOOKUP response of succ({}):{} from node:{}.".format(key, response, sender))
+        sender: str = message[0]  
+        response = message[1]
+        print("Client receive LOOKUP response of succ({}):{} from node:{}.".format(key, response[1], sender))
         
         self.channel.send_to(  # a final multicast
             {i.decode() for i in list(self.channel.channel.smembers('node'))},

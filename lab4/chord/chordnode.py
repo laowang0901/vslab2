@@ -164,7 +164,6 @@ class ChordNode:
                     self.channel.send_to({i.decode() for i in list(self.channel.channel.smembers('client'))}, 
                                          (constChord.LOOKUP_REP, int(next_id)))
             
-                
                 # Finally do a sanity check
                 if not self.channel.exists(next_id):  # probe for existence
                     self.delete_node(next_id)  # purge disappeared node

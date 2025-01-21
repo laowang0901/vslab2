@@ -123,10 +123,15 @@ class Process:
             elif msg[2] == RELEASE:
                 # assure release requester indeed has access (his ENTER is first in queue)
                 assert self.queue[0][1] == msg[1] and self.queue[0][2] == ENTER, 'State error: inconsistent remote RELEASE'
+                if (self.suspect_crashed != ""):
+                    assert sender == self.suspect_crashed, f'Suspected crashed process {self.__mapid(self.suspect_crashed)} is not sender {self.__mapid(sender)}'  
+                    self.logger.info("{}: {} still alive. Continuing...".format(self.__mapid(), self.__mapid(sender)))
+                    self.suspect_crashed = ""
+                
                 del (self.queue[0])  # Just remove first message
             elif msg[2] == ALERT:
                 self.crashed_proc = msg[1]
-                self.__crashed_proc_handle()
+                
                 
                 
             self.__cleanup_queue()  # Finally sort and cleanup the queue
@@ -146,18 +151,26 @@ class Process:
     def __crashed_proc_handle(self):
 
         self.other_processes.remove(self.crashed_proc)
-        self.logger.info("{} Removed crushed process {}.".format(self.__mapid(), self.crashed_proc))
-        tmp = [r for r in self.queue[1:] if r[1] != self.crashed_proc] # take req from crushed proc out of queue
-        self.queue = tmp
+        self.logger.info("{} Removed crushed process {} from list.".format(self.__mapid(), self.crashed_proc))
+        
+        #tmp = [r for r in self.queue[1:] if r[1] != self.crashed_proc] # take req from crushed proc out of queue
+        #self.queue = tmp
+        #self.logger.info("{} Local queue: {}".
+        #                     format(self.__mapid(), self.queue))
+        
+        self.logger.info("{}: Removing messages of crashed {} from queue".format(self.__mapid(), self.__mapid(crashed)))
+        for msg in self.queue:
+            if msg[1] == str(self.crashed_proc):
+                self.queue.remove(msg)
         
         self.crashed_proc = ""
             
     def __crashed_proc_check(self):
         # cases of time out:
-        # 1) waiting allowed to enter(first in queue)
-        # 2) waiting crushed proc to enter (ENTER)
-        if self.queue[0][1] == self.process_id:
-            proc_sent_allow = set([r[1] for r in self.queue[1:] if  r[2]== ALLOW])
+        # 1) waiting allowed to enter
+        # 2) waiting crushed proc to enter
+        if (self.queue[0][1] == self.process_id):
+            proc_sent_allow = set([r[1] for r in self.queue[1:] if r[2]== ALLOW])
             crashed = self.other_processes.copy()
             for proc in proc_sent_allow:
                 crashed.remove(proc)

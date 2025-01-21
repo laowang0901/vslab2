@@ -39,7 +39,7 @@ class Client(threading.Thread):
         msglst = (constRPC.APPEND, data, db_list)  # message payload
         self.chan.send_to(self.server, msglst)  # send msg to server
         print("Request sent to the Server")
-        msgrcv = self.chan.receive_from(self.server)  # wait for response
+        msgrcv = self.chan.receive_from(self.server)  # wait for ack
         
         if constRPC.OK == msgrcv[1]:
             print("Server get request")
@@ -70,7 +70,7 @@ class Server:
             if msgreq is not None:
                 client = msgreq[0]  # see who is the caller
                 print("{} sent request".format(client))
-                self.chan.send_to({client}, constRPC.OK)  # sending Acknoledgement back to cleint
+                self.chan.send_to({client}, constRPC.OK)  # sending Acknowledgement back to cleint
                 print("ACK sent to {}".format(client))
                 msgrpc = msgreq[1]  # fetch call & parameters
                 

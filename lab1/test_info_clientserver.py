@@ -39,7 +39,7 @@ class TestPhonebookService(unittest.TestCase):
     
     def test_srv_get2(self):
         """Test simple call"""
-        msg = self.client.call("GET Üwel")
+        msg = self.client.call("GET Paul")
         self.assertEqual(msg, 'no matching data')
     
     def test_srv_get3(self):
