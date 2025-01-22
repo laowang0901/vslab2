@@ -166,12 +166,12 @@ class Process:
             procs = self.other_processes.copy()
             for proc in proc_answered:
                 procs.remove(proc)
-            proc_not_allow = procs[0]
-            self.proc_not_answered = proc_not_allow
+            proc_without_allow = procs[0]
+            self.proc_not_answered = proc_without_allow
             
             #send ALERT to other process
             self.clock = self.clock + 1  # Increment clock value
-            msg = (self.clock, self.process_id, ALERT, proc_not_allow)
+            msg = (self.clock, self.process_id, ALERT, proc_without_allow)
             
             self.channel.send_to(self.other_processes, msg)
         else:
