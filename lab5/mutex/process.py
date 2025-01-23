@@ -121,9 +121,6 @@ class Process:
             elif msg[2] == RELEASE:
                 # assure release requester indeed has access (his ENTER is first in queue)
                 assert self.queue[0][1] == msg[1] and self.queue[0][2] == ENTER, 'State error: inconsistent remote RELEASE'
-                #if(self.proc_not_answered != ""):
-                #    self.logger.info("{}: Process {} is still alive.".format(self.__mapid(), self.proc_not_answered))
-                #    self.proc_not_answered = ""
                 del (self.queue[0])  # Just remove first message
             elif msg[2] == ALERT:
                 self.logger.info("{} ALERT received. {} not answered".format(self.__mapid(), msg[3]))
@@ -137,31 +134,26 @@ class Process:
                                         'Clock '+str(msg[0]),
                                         self.__mapid(msg[1]),
                                         msg[2]), self.queue))))
-            if len(self.queue) > 0: 
+            if len(self.queue) > 0:  # make sure not to handle timeout too fast
                 if self.proc_not_answered == "":
                     self.__find_proc_not_answered()
                 else:
-
                     self.__remove_proc_not_answered()
 
     def __remove_proc_not_answered(self):
-        self.logger.info("{} :self.proc_not_answered: {}".
-                             format(self.__mapid(), self.proc_not_answered))
         crashed_proc = self.proc_not_answered
         self.other_processes.remove(crashed_proc)
         tmp = [r for r in self.queue if r[1] != crashed_proc] # take req from crashed proc out of queue
         self.queue = tmp
-        self.logger.info("{} Removed crashed process {}. Local queue: {}".format(self.__mapid(), crashed_proc,
-                                                                                 list(map(lambda msg: (
-                                                                                'Clock '+str(msg[0]),
-                                                                                self.__mapid(msg[1]),
-                                                                                msg[2]), self.queue))))
+        self.logger.info("{} Removed crashed process {}.".format(self.__mapid(), crashed_proc))
         
         self.proc_not_answered = ""
             
             
     def __find_proc_not_answered(self):
-        if self.queue[0][1] == self.process_id:
+            
+        if self.queue[0][1] == self.process_id:    # case 1: waiting allowed_to_enter 
+            # check who has sent ALLOW already      
             proc_answered = set(req[1] for req in self.queue[1:] if req[2] == ALLOW)
             procs = self.other_processes.copy()
             for proc in proc_answered:
@@ -174,8 +166,9 @@ class Process:
             msg = (self.clock, self.process_id, ALERT, proc_without_allow)
             
             self.channel.send_to(self.other_processes, msg)
-        else:
-            self.proc_not_answered = self.queue[0][1]
+            
+        else:                                          
+            self.proc_not_answered = self.queue[0][1] # case 2: waiting RELEASE from other proc
             self.logger.info("{}: Process {} is possibly crashed.".format(self.__mapid(), self.proc_not_answered))
 
     def init(self, peer_name, peer_type):
